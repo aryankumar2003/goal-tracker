@@ -1,23 +1,29 @@
 'use client';
 
 import { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, } from 'recharts';
-import { X, Bell, Flag, Moon, Sun,BarChartBig, Target, Trophy } from "lucide-react";
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, LineChart,
+  Line,
+
+  CartesianGrid,
+} from 'recharts';
+import { X, Bell, Flag, Moon, Sun, BarChartBig, Target, Trophy, Medal, Award, CheckCircle } from "lucide-react";
 export const Home = () => {
   const [active, setActive] = useState("Dashboard");
 
-const navItems = ['Dashboard', 'Goals', 'Analytics'];
+  const navItems = ['Dashboard', 'Goals', 'Analytics'];
   return (
     <div>
       <Navbarhome />
       <hr className="border-t border-gray-700 my-4" />
-      {active ==="Landing"? (<LandingPage /> ):( <Navbar active={active} setActive={setActive} navItems={navItems} />)}
-      <hr className="border-t border-gray-700 my-4" />
-      
+      {active === "Landing" ? (<LandingPage />) : (<Navbar active={active} setActive={setActive} navItems={navItems} />)}
+      <hr className="border-t border-gray-700 my-4 max-w-7xl mx-auto" />
+
       {active == "Dashboard" && <Dashboard />}
       {active == "Goals" && <Goals />}
- 
-     
+      {active == "Analytics" && <AnalyticsDashboard />}
+
+
 
 
     </div>
@@ -78,17 +84,16 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ active, setActive, navItems }) => {
   return (
-    <nav className="bg-[#0c0c0c] py-4 px-8  max-w-7xl mx-auto ">
+    <nav className="bg-[#0c0c0c] px-8  max-w-7xl mx-auto ">
       <ul className="flex space-x-6">
         {navItems.map((item) => (
           <li key={item}>
             <button
               onClick={() => setActive(item)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                active === item
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${active === item
                   ? "bg-[#2b2b2b] text-white"
                   : "text-gray-400 hover:text-white"
-              }`}
+                }`}
             >
               {item}
             </button>
@@ -102,7 +107,7 @@ const Navbar: React.FC<NavbarProps> = ({ active, setActive, navItems }) => {
 const LandingPage = () => {
   return (
     <div className="bg-black text-white min-h-screen font-sans max-w-7xl mx-auto">
-    
+
 
       {/* Hero Section */}
       <section className="text-center py-16 px-4">
@@ -212,7 +217,7 @@ const Dashboard = () => {
   return (
 
     <div className="min-h-screen flex-center  max-w-7xl mx-auto bg-black text-white p-6 space-y-6 mb:p-15">
-  
+
       <h2 className="text-2xl font-bold">Dashboard Overview</h2>
       <div className="border-t border-gray-700 my-6" />
 
@@ -674,5 +679,58 @@ const GoalModal: React.FC<GoalModalProps> = ({ goal, onClose }) => {
     </div>
   );
 };
+
+
+const data = [
+  { name: "Increase Physical Activity", progress: 65 },
+  { name: "Learn Spanish", progress: 40 },
+  { name: "Launch Mobile App", progress: 35 },
+  { name: "Save for Down Payment", progress: 28 },
+];
+
+const AnalyticsDashboard = () => {
+  return (
+    <div className="bg-black text-white min-h-screen p-6 font-sans max-w-7xl mx-auto">
+      <h2 className="text-2xl font-bold mb-6">Analytics Dashboard</h2>
+
+      {/* Chart */}
+      <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800 mb-12">
+        <h3 className="text-lg font-semibold mb-4">Time Spent on Goals</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+            <XAxis dataKey="name" stroke="#888" />
+            <YAxis stroke="#888" />
+            <Tooltip contentStyle={{ backgroundColor: '#1c1c1c', borderColor: '#444' }} />
+            <Line type="monotone" dataKey="progress" stroke="#a855f7" strokeWidth={2} activeDot={{ r: 8 }} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Achievements */}
+      <div>
+        <h3 className="text-xl font-semibold mb-6">Your Achievements</h3>
+        <div className="grid md:grid-cols-3 gap-6">
+          <div className="border border-zinc-800 bg-zinc-900 p-4 rounded-lg">
+            <Medal className="text-yellow-400 w-5 h-5 mb-2" />
+            <h4 className="font-semibold">Early Bird</h4>
+            <p className="text-zinc-400 text-sm">Complete 5 goals before their due date.</p>
+          </div>
+          <div className="border border-zinc-800 bg-zinc-900 p-4 rounded-lg">
+            <Award className="text-zinc-300 w-5 h-5 mb-2" />
+            <h4 className="font-semibold">Productivity Master</h4>
+            <p className="text-zinc-400 text-sm">Complete 10 goals in a month.</p>
+          </div>
+          <div className="border border-zinc-800 bg-zinc-900 p-4 rounded-lg">
+            <CheckCircle className="text-orange-400 w-5 h-5 mb-2" />
+            <h4 className="font-semibold">Consistent Achiever</h4>
+            <p className="text-zinc-400 text-sm">Maintain a goal completion rate of 75% for 3 months.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 export default Home;
