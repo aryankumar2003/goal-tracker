@@ -1,7 +1,8 @@
 'use client';
 
 import dayjs from 'dayjs';
-import { useState, useMemo, useEffect } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import {
   BarChart,
   Bar,
@@ -53,7 +54,7 @@ export const Home = () => {
 
       {active === "Landing" ? (<LandingPage active={active} setActive={setActive} />) : (<Navbar active={active} setActive={setActive} navItems={navItems} />)}
 
-      {active == "Dashboard" && <Dashboard />}
+      {active == "Dashboard" && <Dashboard goalsData={goalsData} />}
       {active == "Goals" &&
         <Goals
           goals={goals}
@@ -277,23 +278,26 @@ interface NavbarProps {
   navItems: string[];
 }
 
-const Navbar: React.FC<NavbarProps> = ({ active, setActive, navItems }) => {
+const Navbar= ({ active, setActive, navItems }: NavbarProps) => {
   return (
-    <nav className="bg-[#111] px-8  max-w-7xl mx-auto ">
-
+    <nav className="bg-[#111] px-8 max-w-7xl mx-auto">
       <ul className="flex space-x-6">
         {navItems.map((item) => (
-          <li key={item}>
+          <motion.li
+            key={item}
+            whileHover={{ scale: 1.1 }}
+            transition={{ type: 'spring', stiffness: 200 }}
+          >
             <button
               onClick={() => setActive(item)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${active === item
-                ? "bg-[#2b2b2b] text-white"
-                : "text-gray-400 hover:text-white"
+                ? 'bg-[#2b2b2b] text-white'
+                : 'text-gray-400 hover:text-white'
                 }`}
             >
               {item}
             </button>
-          </li>
+          </motion.li>
         ))}
       </ul>
       <hr className="border-t border-gray-700 my-4 max-w-7xl mx-auto" />
@@ -306,28 +310,57 @@ interface LandingProps {
   active: string;
   setActive: (item: string) => void;
 }
+
+
 const LandingPage = ({ active, setActive }: LandingProps) => {
+  const heroRef = useRef(null);
+  const progressRef = useRef(null);
+  const featuresRef = useRef(null);
+  const ctaRef = useRef(null);
+
+  const heroInView = useInView(heroRef, { once: true, amount: 0.3 });
+  const progressInView = useInView(progressRef, { once: true, amount: 0.3 });
+  const featuresInView = useInView(featuresRef, { once: true, amount: 0.3 });
+  const ctaInView = useInView(ctaRef, { once: true, amount: 0.3 });
+
   return (
     <div className="bg-black text-white min-h-screen font-sans max-w-7xl mx-auto">
-
-
       {/* Hero Section */}
-      <section className="text-center py-16 px-4">
-        <h2 className="text-4xl font-extrabold text-white mb-4">
+      <motion.section
+        ref={heroRef}
+        initial={{ opacity: 0, y: 50 }}
+        animate={heroInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8 }}
+        className="text-center py-16 px-4"
+      >
+        <motion.h2
+          whileHover={{ scale: 1.05 }}
+          className="text-4xl font-extrabold text-white mb-4"
+        >
           Track your goals. <span className="text-purple-500">Achieve more.</span>
-        </h2>
+        </motion.h2>
         <p className="text-zinc-400 max-w-2xl mx-auto mb-6">
           Stay organized, focused, and motivated with our powerful goal tracking system. Monitor your progress and celebrate your accomplishments.
         </p>
         <div className="space-x-4">
-          <button
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setActive("Dashboard")}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-md">Get Started</button>
-
+            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-md"
+          >
+            Get Started
+          </motion.button>
         </div>
 
         {/* Progress Bar Section */}
-        <div className="bg-zinc-900 rounded-xl p-6 mt-12 w-full max-w-lg mx-auto text-left">
+        <motion.div
+          ref={progressRef}
+          initial={{ opacity: 0, y: 50 }}
+          animate={progressInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8 }}
+          className="bg-zinc-900 rounded-xl p-6 mt-12 w-full max-w-lg mx-auto text-left"
+        >
           <h3 className="text-lg font-semibold text-white mb-4">Goal Progress</h3>
           <div className="space-y-3">
             {[
@@ -349,62 +382,88 @@ const LandingPage = ({ active, setActive }: LandingProps) => {
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* Key Features */}
-      <section className="py-20 bg-zinc-950 px-4">
+      <motion.section
+        ref={featuresRef}
+        initial={{ opacity: 0, y: 50 }}
+        animate={featuresInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8 }}
+        className="py-20 bg-zinc-950 px-4"
+      >
         <h3 className="text-2xl font-bold text-center mb-12">Key Features</h3>
         <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          <div className="bg-zinc-900 text-white border border-zinc-800 p-6 rounded-lg">
-            <Target className="w-6 h-6 mb-3 text-purple-500" />
-            <h4 className="text-lg font-semibold mb-2">Goal Tracking</h4>
-            <p className="text-sm text-zinc-400">
-              Set goals, monitor progress, and celebrate achievements with our intuitive interface.
-            </p>
-          </div>
-
-          <div className="bg-zinc-900 text-white border border-zinc-800 p-6 rounded-lg">
-            <BarChartBig className="w-6 h-6 mb-3 text-purple-500" />
-            <h4 className="text-lg font-semibold mb-2">Analytics Dashboard</h4>
-            <p className="text-sm text-zinc-400">
-              Gain insights into your productivity patterns with detailed analytics.
-            </p>
-          </div>
-
-          <div className="bg-zinc-900 text-white border border-zinc-800 p-6 rounded-lg">
-            <Trophy className="w-6 h-6 mb-3 text-purple-500" />
-            <h4 className="text-lg font-semibold mb-2">Achievement System</h4>
-            <p className="text-sm text-zinc-400">
-              Earn rewards and streaks as you accomplish more goals and milestones.
-            </p>
-          </div>
+          {[
+            {
+              icon: <Target className="w-6 h-6 mb-3 text-purple-500" />,
+              title: "Goal Tracking",
+              description:
+                "Set goals, monitor progress, and celebrate achievements with our intuitive interface.",
+            },
+            {
+              icon: <BarChartBig className="w-6 h-6 mb-3 text-purple-500" />,
+              title: "Analytics Dashboard",
+              description:
+                "Gain insights into your productivity patterns with detailed analytics.",
+            },
+            {
+              icon: <Trophy className="w-6 h-6 mb-3 text-purple-500" />,
+              title: "Achievement System",
+              description:
+                "Earn rewards and streaks as you accomplish more goals and milestones.",
+            },
+          ].map((feature, index) => (
+            <motion.div
+              key={index}
+              whileHover={{ scale: 1.05 }}
+              className="bg-zinc-900 text-white border border-zinc-800 p-6 rounded-lg"
+            >
+              {feature.icon}
+              <h4 className="text-lg font-semibold mb-2">{feature.title}</h4>
+              <p className="text-sm text-zinc-400">{feature.description}</p>
+            </motion.div>
+          ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* CTA Section */}
-      <section className="text-center py-20 bg-zinc-900 px-4">
+      <motion.section
+        ref={ctaRef}
+        initial={{ opacity: 0, y: 50 }}
+        animate={ctaInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8 }}
+        className="text-center py-20 bg-zinc-900 px-4"
+      >
         <h3 className="text-xl font-semibold mb-4">Ready to achieve your goals?</h3>
         <p className="text-zinc-400 mb-6">
           Join thousands of users who are accomplishing their dreams with GoalTracker.
         </p>
-        <button
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setActive("Dashboard")}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-md">Get Started Now</button>
-      </section>
-
-
-
+          className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-md"
+        >
+          Get Started Now
+        </motion.button>
+      </motion.section>
     </div>
   );
 };
 
 
-
-const Dashboard = () => {
-
-
+const Dashboard = ({ goalsData }: { goalsData: Goal[] }) => {
   const COLORS = ['#4f46e5', '#06b6d4', '#f43f5e', '#f97316', '#8b5cf6'];
+
+  const heroRef = useRef(null);
+  const chartsRef = useRef(null);
+  const summaryRef = useRef(null);
+
+  const heroInView = useInView(heroRef, { once: true, amount: 0.3 });
+  const chartsInView = useInView(chartsRef, { once: true, amount: 0.3 });
+  const summaryInView = useInView(summaryRef, { once: true, amount: 0.3 });
 
   const statusCountData = Object.entries(
     goalsData.reduce((acc, goal) => {
@@ -412,7 +471,6 @@ const Dashboard = () => {
       return acc;
     }, {} as Record<string, number>)
   ).map(([status, count]) => ({ status, count }));
-
 
   const stats = useMemo(() => {
     const now = dayjs();
@@ -432,17 +490,28 @@ const Dashboard = () => {
     };
   }, [goalsData]);
 
+  const hoverEffect = "transition duration-300 transform hover:scale-105 hover:shadow-xl hover:border-indigo-500";
+
   return (
+    <div className="min-h-screen flex-center max-w-7xl mx-auto bg-black text-white p-6 space-y-6 mb:p-15">
+      <motion.div
+        ref={heroRef}
+        initial={{ opacity: 0, y: 50 }}
+        animate={heroInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8 }}
+      >
+        <h2 className="text-2xl font-bold">Dashboard Overview</h2>
+        <div className="border-t border-gray-700 my-6" />
+      </motion.div>
 
-    <div className="min-h-screen flex-center  max-w-7xl mx-auto bg-black text-white p-6 space-y-6 mb:p-15">
-
-      <h2 className="text-2xl font-bold">Dashboard Overview</h2>
-      <div className="border-t border-gray-700 my-6" />
-
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-[#111] border border-gray-600 rounded-lg p-4">
+      <motion.div
+        ref={summaryRef}
+        initial={{ opacity: 0, y: 50 }}
+        animate={summaryInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+      >
+        <div className={`bg-[#111] border border-gray-600 rounded-lg p-4 ${hoverEffect}`}>
           <div className="flex justify-between items-center mb-2">
             <h3>Goals Completed</h3>
             <span>✅</span>
@@ -450,8 +519,7 @@ const Dashboard = () => {
           <p className="text-3xl font-semibold">{stats.completed}</p>
           <p className="text-sm text-gray-400">Out of {stats.total} goals</p>
         </div>
-
-        <div className="bg-[#111] border border-gray-600 rounded-lg p-4">
+        <div className={`bg-[#111] border border-gray-600 rounded-lg p-4 ${hoverEffect}`}>
           <div className="flex justify-between items-center mb-2">
             <h3>Tasks In Progress</h3>
             <span>🕒</span>
@@ -459,8 +527,7 @@ const Dashboard = () => {
           <p className="text-3xl font-semibold">{stats.inProgress}</p>
           <p className="text-sm text-gray-400">Working on current tasks</p>
         </div>
-
-        <div className="bg-[#111] border border-gray-600 rounded-lg p-4">
+        <div className={`bg-[#111] border border-gray-600 rounded-lg p-4 ${hoverEffect}`}>
           <div className="flex justify-between items-center mb-2">
             <h3>Upcoming Deadlines</h3>
             <span>📅</span>
@@ -468,81 +535,55 @@ const Dashboard = () => {
           <p className="text-3xl font-semibold">{stats.upcomingDeadlines}</p>
           <p className="text-sm text-gray-400">Deadlines this week</p>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Bar Chart */}
-
-        <div className="bg-[#111] border rounded-lg p-4">
+      <motion.div
+        ref={chartsRef}
+        initial={{ opacity: 0, y: 50 }}
+        animate={chartsInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.8 }}
+        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+      >
+        <div className={`bg-[#111] border rounded-lg p-4 ${hoverEffect}`}>
           <h3 className="font-semibold mb-4">Goal Completion Rate</h3>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={goalsData}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="#333"
-                horizontal={true}
-                vertical={true}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="#333" horizontal={true} vertical={true} />
               <XAxis dataKey="title" tick={false} />
               <YAxis tick={{ fill: '#ccc', fontSize: 12 }} />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#222', border: '1px solid #444', color: '#fff' }}
-                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-              />
+              <Tooltip contentStyle={{ backgroundColor: '#222', border: '1px solid #444', color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
               <Bar dataKey="progress" fill="#a78bfa" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-
-
-        {/* Pie Chart */}
-        <div className="bg-[#111] border rounded-lg p-4">
-  <h3 className="font-semibold mb-4">Goals by Status</h3>
-  <ResponsiveContainer width="100%" height={250}>
-    <PieChart>
-      <Pie
-        data={statusCountData}
-        cx="50%"
-        cy="50%"
-        outerRadius={80}
-        dataKey="count"
-        nameKey="status"
-        label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
-        labelLine={false}
-      >
-        {statusCountData.map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-        ))}
-      </Pie>
-      <Tooltip
-  contentStyle={{ backgroundColor: '#222', border: '1px solid #444', color: '#fff' }}
-  labelStyle={{ color: '#fff' }}
-  itemStyle={{ color: '#fff' }}
-  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-/>
- 
-
-      <Legend
-        layout="horizontal"
-        verticalAlign="bottom"
-        align="center"
-        wrapperStyle={{ color: '#ccc' }}
-      />
-    </PieChart>
-  </ResponsiveContainer>
-</div>
-
-      </div>
+        <div className={`bg-[#111] border rounded-lg p-4 ${hoverEffect}`}>
+          <h3 className="font-semibold mb-4">Goals by Status</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <PieChart>
+              <Pie
+                data={statusCountData}
+                cx="50%"
+                cy="50%"
+                outerRadius={80}
+                dataKey="count"
+                nameKey="status"
+                label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                labelLine={false}
+              >
+                {statusCountData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip contentStyle={{ backgroundColor: '#222', border: '1px solid #444', color: '#fff' }} labelStyle={{ color: '#fff' }} itemStyle={{ color: '#fff' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
+              <Legend layout="horizontal" verticalAlign="bottom" align="center" wrapperStyle={{ color: '#ccc' }} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </motion.div>
     </div>
-
   );
-}
-
-
-
-
+};
 
 type GoalsProps = {
   goals: Goal[];
@@ -556,6 +597,8 @@ type GoalsProps = {
   showForm: boolean;
   setShowForm: React.Dispatch<React.SetStateAction<boolean>>;
 };
+
+
 const Goals: React.FC<GoalsProps> = ({
   goals,
   setGoals,
@@ -568,9 +611,6 @@ const Goals: React.FC<GoalsProps> = ({
   showForm,
   setShowForm
 }) => {
-
-
-
   const [newGoal, setNewGoal] = useState<Goal>({
     title: '',
     description: '',
@@ -593,8 +633,6 @@ const Goals: React.FC<GoalsProps> = ({
     });
     setShowForm(false);
   };
-
-
 
   const priorityOrder = { high: 1, medium: 2, low: 3 };
 
@@ -625,23 +663,24 @@ const Goals: React.FC<GoalsProps> = ({
   const filteredGoals = goals.filter((goal) =>
     goal.title.toLowerCase().includes(search.toLowerCase())
   );
+
   const handleGoalUpdate = (updatedGoal: Goal) => {
     const updatedGoals = goals.map((goal) =>
       goal.title === selectedGoal?.title ? updatedGoal : goal
     );
     setGoals(updatedGoals);
 
-    // Update the global goalsData array (in-place)
     const index = goalsData.findIndex((goal) => goal.title === selectedGoal?.title);
     if (index !== -1) {
       goalsData[index] = updatedGoal;
     }
 
-    setSelectedGoal(updatedGoal); // Update the modal view as well
+    setSelectedGoal(updatedGoal);
   };
 
   return (
     <div className="max-w-7xl mx-auto p-6 text-white pb-80 bg-black">
+      <motion.div>
       <h2 className="text-2xl font-bold mb-4">Your Goals</h2>
 
       <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
@@ -663,7 +702,6 @@ const Goals: React.FC<GoalsProps> = ({
             + Add New Goal
           </button>
 
-          {/* Dropdown for sorting */}
           <select
             onChange={handleSortChange}
             className="bg-[#111] text-white px-4 py-2 rounded-md"
@@ -676,9 +714,13 @@ const Goals: React.FC<GoalsProps> = ({
         </div>
       </div>
 
-      {/* Add Goal Form */}
       {showForm && (
-        <div className="bg-[#1e1e1e] p-4 rounded-lg mb-6 space-y-3 max-w-3xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="bg-[#1e1e1e] p-4 rounded-lg mb-6 space-y-3 max-w-3xl mx-auto"
+        >
           <input
             type="text"
             placeholder="Title"
@@ -733,19 +775,21 @@ const Goals: React.FC<GoalsProps> = ({
           >
             Add Goal
           </button>
-        </div>
+        </motion.div>
       )}
 
-      {/* Goals List */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredGoals.map((goal, idx) => (
-          <div
+          <motion.div
             key={idx}
             onClick={() => {
               setSelectedGoal(goal);
               setShowModal(true);
             }}
             className="bg-[#111] border border-gray-700 rounded-lg p-4 relative shadow-sm cursor-pointer"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ duration: 0.2 }}
           >
             <div className="border-t-2 border-violet-500 rounded-t-md mb-3 -mt-4"></div>
             <div className="mb-2">
@@ -767,7 +811,7 @@ const Goals: React.FC<GoalsProps> = ({
                 {goal.status}
               </span>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
@@ -776,9 +820,10 @@ const Goals: React.FC<GoalsProps> = ({
           onClose={() => setShowModal(false)}
           handleGoalUpdate={handleGoalUpdate}
           goal={selectedGoal}
-          onUpdate={handleGoalUpdate} // pass this to allow updating
+          onUpdate={handleGoalUpdate}
         />
       )}
+      </motion.div>
     </div>
   );
 };
@@ -897,7 +942,12 @@ const AnalyticsDashboard = () => {
       <h2 className="text-2xl font-bold mb-6">Analytics Dashboard</h2>
 
       {/* Chart */}
-      <div className="bg-zinc-900 rounded-lg p-4 border border-zinc-800 mb-12">
+      <motion.div
+        className="bg-zinc-900 rounded-lg p-4 border border-zinc-800 mb-12"
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
         <h3 className="text-lg font-semibold mb-4">Time Spent on Goals</h3>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={goalsData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
@@ -908,29 +958,45 @@ const AnalyticsDashboard = () => {
             <Line type="monotone" dataKey="progress" stroke="#a855f7" strokeWidth={2} activeDot={{ r: 8 }} />
           </LineChart>
         </ResponsiveContainer>
-      </div>
+      </motion.div>
 
       {/* Achievements */}
-      <div>
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+      >
         <h3 className="text-xl font-semibold mb-6">Your Achievements</h3>
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="border border-zinc-800 bg-zinc-900 p-4 rounded-lg">
+          <motion.div
+            className="border border-zinc-800 bg-zinc-900 p-4 rounded-lg"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: 'spring', stiffness: 200 }}
+          >
             <Medal className="text-yellow-400 w-5 h-5 mb-2" />
             <h4 className="font-semibold">Early Bird</h4>
             <p className="text-zinc-400 text-sm">Complete 5 goals before their due date.</p>
-          </div>
-          <div className="border border-zinc-800 bg-zinc-900 p-4 rounded-lg">
+          </motion.div>
+          <motion.div
+            className="border border-zinc-800 bg-zinc-900 p-4 rounded-lg"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: 'spring', stiffness: 200 }}
+          >
             <Award className="text-zinc-300 w-5 h-5 mb-2" />
             <h4 className="font-semibold">Productivity Master</h4>
             <p className="text-zinc-400 text-sm">Complete 10 goals in a month.</p>
-          </div>
-          <div className="border border-zinc-800 bg-zinc-900 p-4 rounded-lg">
+          </motion.div>
+          <motion.div
+            className="border border-zinc-800 bg-zinc-900 p-4 rounded-lg"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: 'spring', stiffness: 200 }}
+          >
             <CheckCircle className="text-orange-400 w-5 h-5 mb-2" />
             <h4 className="font-semibold">Consistent Achiever</h4>
             <p className="text-zinc-400 text-sm">Maintain a goal completion rate of 75% for 3 months.</p>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
