@@ -3,6 +3,7 @@
 import dayjs from 'dayjs';
 import { motion, useInView } from 'framer-motion';
 import { useState, useMemo, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import {
   BarChart,
   Bar,
@@ -16,10 +17,10 @@ import {
   Legend,
   LineChart,
   Line,
-
   CartesianGrid,
 } from 'recharts';
 import { Bell, Flag, BarChartBig, Target, Trophy, Medal, Award, CheckCircle } from "lucide-react";
+
 const Home = () => {
   const [active, setActive] = useState("Landing");
   const [search, setSearch] = useState('');
@@ -28,21 +29,17 @@ const Home = () => {
   const [showForm, setShowForm] = useState(false);
   const [goals, setGoals] = useState<Goal[]>(goalsData); // initial goals
 
-
   const navItems = ['Dashboard', 'Goals', 'Analytics'];
-
-
 
   return (
     <div>
       <Navbarhome />
       <hr className="border-t border-gray-700 my-4" />
 
-
       {active === "Landing" ? (<LandingPage active={active} setActive={setActive} />) : (<Navbar active={active} setActive={setActive} navItems={navItems} />)}
 
-      {active == "Dashboard" && <Dashboard goalsData={goalsData} />}
-      {active == "Goals" &&
+      {active === "Dashboard" && <Dashboard goalsData={goalsData} />}
+      {active === "Goals" &&
         <Goals
           goals={goals}
           setGoals={setGoals}
@@ -54,9 +51,8 @@ const Home = () => {
           setSelectedGoal={setSelectedGoal}
           showForm={showForm}
           setShowForm={setShowForm}
-
         />}
-      {active == "Analytics" && <AnalyticsDashboard />}
+      {active === "Analytics" && <AnalyticsDashboard />}
 
       <hr className="border-t border-gray-700 my-4 max-w-7xl mx-auto" />
 
@@ -68,8 +64,6 @@ const Home = () => {
           <a href="#" className="text-zinc-500 hover:text-white">Contact Us</a>
         </div>
       </footer>
-
-
     </div>
   );
 }
@@ -93,7 +87,6 @@ interface Goal {
   updatedAt?: string;
   userId?: string;
 }
-
 
 const goalsData: Goal[] = [
   {
@@ -174,9 +167,98 @@ const goalsData: Goal[] = [
     updatedAt: '2024-03-31T00:00:00Z',
     userId: 'user_001',
   },
+  {
+    title: 'Organize Team Retreat',
+    description: 'Plan and organize a 3-day offsite team-building retreat',
+    due: 'Oct 15, 2024',
+    progress: 10,
+    priority: 'low',
+    status: 'not-started',
+    comments: [],
+    milestones: [],
+    createdAt: '2024-06-01T00:00:00Z',
+    updatedAt: '2024-06-01T00:00:00Z',
+    userId: 'user_002',
+  },
+  {
+    title: 'Complete AWS Certification',
+    description: 'Earn AWS Solutions Architect Associate certification',
+    due: 'Nov 10, 2024',
+    progress: 50,
+    priority: 'high',
+    status: 'in-progress',
+    comments: [],
+    milestones: ['Enroll in course', 'Complete training', 'Practice exams'],
+    createdAt: '2024-05-01T00:00:00Z',
+    updatedAt: '2024-09-01T00:00:00Z',
+    userId: 'user_003',
+  },
+  {
+    title: 'Implement CI/CD Pipeline',
+    description: 'Set up a complete CI/CD pipeline for all microservices',
+    due: 'Jul 20, 2024',
+    progress: 70,
+    priority: 'high',
+    status: 'in-progress',
+    comments: [],
+    milestones: ['Setup GitHub Actions', 'Dockerize apps', 'Deploy to staging'],
+    createdAt: '2024-02-01T00:00:00Z',
+    updatedAt: '2024-06-20T00:00:00Z',
+    userId: 'user_001',
+  },
+  {
+    title: 'Read 20 Books',
+    description: 'Read at least 20 non-fiction books by the end of the year',
+    due: 'Dec 31, 2024',
+    progress: 15,
+    priority: 'medium',
+    status: 'in-progress',
+    comments: [],
+    milestones: [],
+    createdAt: '2024-01-01T00:00:00Z',
+    updatedAt: '2024-06-01T00:00:00Z',
+    userId: 'user_002',
+  },
+  {
+    title: 'Launch Newsletter',
+    description: 'Launch a monthly newsletter for subscribers',
+    due: 'May 15, 2024',
+    progress: 100,
+    priority: 'medium',
+    status: 'completed',
+    comments: [],
+    milestones: ['Build mailing list', 'Design layout', 'Send first issue'],
+    createdAt: '2024-03-01T00:00:00Z',
+    updatedAt: '2024-05-15T00:00:00Z',
+    userId: 'user_003',
+  },
+  {
+    title: 'Mentor New Intern',
+    description: 'Guide and mentor the new software engineering intern',
+    due: 'Sep 01, 2024',
+    progress: 85,
+    priority: 'low',
+    status: 'in-progress',
+    comments: [],
+    milestones: [],
+    createdAt: '2025-05-15T00:00:00Z',
+    updatedAt: '2024-08-25T00:00:00Z',
+    userId: 'user_004',
+  },
+  {
+    title: 'Build Personal Portfolio',
+    description: 'Create a modern, responsive portfolio site to showcase work',
+    due: 'Jun 10, 2024',
+    progress: 100,
+    priority: 'high',
+    status: 'completed',
+    comments: [],
+    milestones: ['Design mockup', 'Build frontend', 'Deploy to Vercel'],
+    createdAt: '2024-03-15T00:00:00Z',
+    updatedAt: '2024-06-10T00:00:00Z',
+    userId: 'user_004',
+  },
 ];
-
-
 
 const priorityColorMap: Record<string, string> = {
   high: 'bg-red-600',
@@ -188,9 +270,8 @@ const statusColorMap: Record<string, string> = {
   'in-progress': 'bg-blue-700',
   'on-hold': 'bg-yellow-600',
   'not-started': 'bg-gray-700',
+  'completed': 'bg-green-600',
 };
-
-
 
 const Navbarhome = () => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -239,7 +320,7 @@ const Navbarhome = () => {
               <ul className="text-sm">
                 <li className="p-3 hover:bg-gray-100 cursor-pointer">🎯 You reached your daily goal!</li>
                 <li className="p-3 hover:bg-gray-100 cursor-pointer">📅 Upcoming task due tomorrow.</li>
-                <li className="p-3 hover:bg-gray-100 cursor-pointer">✅ Task "Write report" marked as complete.</li>
+                <li className="p-3 hover:bg-gray-100 cursor-pointer">✅ Task &quot;Write report&quot; marked as complete.</li>
               </ul>
             </div>
           )}
@@ -247,10 +328,12 @@ const Navbarhome = () => {
 
         {/* User Avatar and Name */}
         <div className="flex items-center gap-2">
-          <img
+          <Image
             src="https://randomuser.me/api/portraits/men/32.jpg"
             alt="User"
-            className="w-8 h-8 rounded-full"
+            className="rounded-full"
+            width={32}
+            height={32}
           />
           <span className="text-sm font-medium text-yellow-200">Alex Johnson</span>
         </div>
@@ -292,14 +375,12 @@ const Navbar= ({ active, setActive, navItems }: NavbarProps) => {
   );
 };
 
-
 interface LandingProps {
   active: string;
   setActive: (item: string) => void;
 }
 
-
-const LandingPage = ({ active, setActive }: LandingProps) => {
+const LandingPage = ({ setActive }: LandingProps) => {
   const heroRef = useRef(null);
   const progressRef = useRef(null);
   const featuresRef = useRef(null);
@@ -440,7 +521,6 @@ const LandingPage = ({ active, setActive }: LandingProps) => {
   );
 };
 
-
 const Dashboard = ({ goalsData }: { goalsData: Goal[] }) => {
   const COLORS = ['#4f46e5', '#06b6d4', '#f43f5e', '#f97316', '#8b5cf6'];
 
@@ -571,6 +651,8 @@ const Dashboard = ({ goalsData }: { goalsData: Goal[] }) => {
     </div>
   );
 };
+
+
 
 type GoalsProps = {
   goals: Goal[];
