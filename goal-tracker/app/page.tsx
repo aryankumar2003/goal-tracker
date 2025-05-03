@@ -205,33 +205,56 @@ const statusColorMap: Record<string, string> = {
 
 
 const Navbarhome = () => {
-  const [darkMode, setDarkMode] = useState(true);
-  const toggleTheme = () => setDarkMode(!darkMode);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  const toggleNotifications = () => setShowNotifications(!showNotifications);
+
+  // Automatically close the notifications after 4 seconds
+  useEffect(() => {
+    if (showNotifications) {
+      const timer = setTimeout(() => {
+        setShowNotifications(false);
+      }, 4000); // 4 seconds
+
+      // Clean up the timer when the component unmounts or when notifications are closed manually
+      return () => clearTimeout(timer);
+    }
+  }, [showNotifications]);
 
   return (
-    <nav className="bg-[#0d0d0d] max-w-7xl mx-auto  text-white px-6 py-3 flex items-center justify-between shadow-md">
+    <nav className="bg-[#111] max-w-7xl mx-auto text-white px-6 py-3 flex items-center justify-between shadow-md relative">
       {/* Left - Logo */}
       <div className="flex items-center gap-2">
         <Flag className="text-violet-500 w-5 h-5" />
-        <span className="font-bold text-lg text-white">Goal<span className="text-gray-300">Tracker</span></span>
+        <span className="font-bold text-lg text-white">
+          Goal<span className="text-gray-300">Tracker</span>
+        </span>
       </div>
 
       {/* Right - Controls */}
       <div className="flex items-center gap-5">
-        {/* Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className="text-white hover:text-violet-500 transition-colors"
-        >
-          {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
-
         {/* Notifications */}
         <div className="relative">
-          <Bell className="text-white hover:text-violet-500" size={20} />
+          <Bell
+            className="text-white hover:text-violet-500 cursor-pointer"
+            size={20}
+            onClick={toggleNotifications}
+          />
           <span className="absolute -top-1 -right-1 bg-violet-600 text-xs text-white w-4 h-4 rounded-full flex items-center justify-center">
             3
           </span>
+
+          {/* Notification Dropdown */}
+          {showNotifications && (
+            <div className="absolute right-0 mt-2 w-64 bg-[#123] text-white rounded-md shadow-lg z-10">
+              <div className="p-3 border-b font-semibold">Notifications</div>
+              <ul className="text-sm">
+                <li className="p-3 hover:bg-gray-100 cursor-pointer">🎯 You reached your daily goal!</li>
+                <li className="p-3 hover:bg-gray-100 cursor-pointer">📅 Upcoming task due tomorrow.</li>
+                <li className="p-3 hover:bg-gray-100 cursor-pointer">✅ Task "Write report" marked as complete.</li>
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* User Avatar and Name */}
@@ -246,7 +269,7 @@ const Navbarhome = () => {
       </div>
     </nav>
   );
-}
+};
 
 interface NavbarProps {
   active: string;
@@ -256,7 +279,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ active, setActive, navItems }) => {
   return (
-    <nav className="bg-[#0c0c0c] px-8  max-w-7xl mx-auto ">
+    <nav className="bg-[#111] px-8  max-w-7xl mx-auto ">
 
       <ul className="flex space-x-6">
         {navItems.map((item) => (
@@ -394,7 +417,6 @@ const Dashboard = () => {
   const stats = useMemo(() => {
     const now = dayjs();
     const endOfWeek = now.endOf('week');
-
     const completed = goalsData.filter(goal => goal.status === 'completed').length;
     const inProgress = goalsData.filter(goal => goal.status === 'in-progress').length;
     const upcomingDeadlines = goalsData.filter(goal => {
@@ -451,44 +473,67 @@ const Dashboard = () => {
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Bar Chart */}
+
         <div className="bg-[#111] border rounded-lg p-4">
           <h3 className="font-semibold mb-4">Goal Completion Rate</h3>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={goalsData}>
-              <XAxis dataKey="title" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="progress" fill="#a78bfa" />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#333"
+                horizontal={true}
+                vertical={true}
+              />
+              <XAxis dataKey="title" tick={false} />
+              <YAxis tick={{ fill: '#ccc', fontSize: 12 }} />
+              <Tooltip
+                contentStyle={{ backgroundColor: '#222', border: '1px solid #444', color: '#fff' }}
+                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+              />
+              <Bar dataKey="progress" fill="#a78bfa" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
+
+
         {/* Pie Chart */}
         <div className="bg-[#111] border rounded-lg p-4">
-          <h3 className="font-semibold mb-4">Goals by Status</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={statusCountData}
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                dataKey="count"
-                nameKey="status"
+  <h3 className="font-semibold mb-4">Goals by Status</h3>
+  <ResponsiveContainer width="100%" height={250}>
+    <PieChart>
+      <Pie
+        data={statusCountData}
+        cx="50%"
+        cy="50%"
+        outerRadius={80}
+        dataKey="count"
+        nameKey="status"
+        label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+        labelLine={false}
+      >
+        {statusCountData.map((entry, index) => (
+          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+        ))}
+      </Pie>
+      <Tooltip
+  contentStyle={{ backgroundColor: '#222', border: '1px solid #444', color: '#fff' }}
+  labelStyle={{ color: '#fff' }}
+  itemStyle={{ color: '#fff' }}
+  cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+/>
+ 
 
-              >
-                {statusCountData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
+      <Legend
+        layout="horizontal"
+        verticalAlign="bottom"
+        align="center"
+        wrapperStyle={{ color: '#ccc' }}
+      />
+    </PieChart>
+  </ResponsiveContainer>
+</div>
 
-
-
-        </div>
       </div>
     </div>
 
@@ -549,12 +594,7 @@ const Goals: React.FC<GoalsProps> = ({
     setShowForm(false);
   };
 
-  const handleGoalUpdate = (updatedGoal: Goal) => {
-    setGoals((prevGoals) =>
-      prevGoals.map((g) => (g.title === updatedGoal.title ? updatedGoal : g))
-    );
-    setSelectedGoal(updatedGoal); // So modal stays in sync
-  };
+
 
   const priorityOrder = { high: 1, medium: 2, low: 3 };
 
@@ -585,9 +625,23 @@ const Goals: React.FC<GoalsProps> = ({
   const filteredGoals = goals.filter((goal) =>
     goal.title.toLowerCase().includes(search.toLowerCase())
   );
+  const handleGoalUpdate = (updatedGoal: Goal) => {
+    const updatedGoals = goals.map((goal) =>
+      goal.title === selectedGoal?.title ? updatedGoal : goal
+    );
+    setGoals(updatedGoals);
+
+    // Update the global goalsData array (in-place)
+    const index = goalsData.findIndex((goal) => goal.title === selectedGoal?.title);
+    if (index !== -1) {
+      goalsData[index] = updatedGoal;
+    }
+
+    setSelectedGoal(updatedGoal); // Update the modal view as well
+  };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 text-white pb-80">
+    <div className="max-w-7xl mx-auto p-6 text-white pb-80 bg-black">
       <h2 className="text-2xl font-bold mb-4">Your Goals</h2>
 
       <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
@@ -720,6 +774,7 @@ const Goals: React.FC<GoalsProps> = ({
       {showModal && selectedGoal && (
         <GoalModal
           onClose={() => setShowModal(false)}
+          handleGoalUpdate={handleGoalUpdate}
           goal={selectedGoal}
           onUpdate={handleGoalUpdate} // pass this to allow updating
         />
@@ -733,9 +788,10 @@ type GoalModalProps = {
   goal: Goal;
   onClose: () => void;
   onUpdate: (updatedGoal: Goal) => void;
+  handleGoalUpdate: (updatedGoal: Goal) => void;
 };
 
-const GoalModal: React.FC<GoalModalProps> = ({ goal, onClose, onUpdate }) => {
+const GoalModal: React.FC<GoalModalProps> = ({ goal, onClose, onUpdate, handleGoalUpdate }) => {
   const [editedGoal, setEditedGoal] = useState<Goal>(goal);
 
   useEffect(() => {
@@ -752,6 +808,7 @@ const GoalModal: React.FC<GoalModalProps> = ({ goal, onClose, onUpdate }) => {
 
   const handleSave = () => {
     onUpdate(editedGoal);
+    handleGoalUpdate(editedGoal); // Update the global goalsData array (in-place)
     onClose();
   };
 
