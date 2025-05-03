@@ -19,8 +19,8 @@ import {
 
   CartesianGrid,
 } from 'recharts';
-import { X, Bell, Flag, Moon, Sun, BarChartBig, Target, Trophy, Medal, Award, CheckCircle } from "lucide-react";
-export const Home = () => {
+import { Bell, Flag, BarChartBig, Target, Trophy, Medal, Award, CheckCircle } from "lucide-react";
+const Home = () => {
   const [active, setActive] = useState("Landing");
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -32,20 +32,7 @@ export const Home = () => {
   const navItems = ['Dashboard', 'Goals', 'Analytics'];
 
 
-  const handleGoalUpdate = (updatedGoal: Goal) => {
-    const updatedGoals = goals.map((goal) =>
-      goal.title === selectedGoal?.title ? updatedGoal : goal
-    );
-    setGoals(updatedGoals);
 
-    // Update the global goalsData array (in-place)
-    const index = goalsData.findIndex((goal) => goal.title === selectedGoal?.title);
-    if (index !== -1) {
-      goalsData[index] = updatedGoal;
-    }
-
-    setSelectedGoal(updatedGoal); // Update the modal view as well
-  };
   return (
     <div>
       <Navbarhome />
@@ -1002,4 +989,12 @@ const AnalyticsDashboard = () => {
 };
 
 
-export default Home;
+
+
+const Page = () => {
+  return (
+    <Home />
+  );
+}
+
+export default Page;
