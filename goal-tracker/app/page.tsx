@@ -328,14 +328,16 @@ const Navbarhome = () => {
 
         {/* User Avatar and Name */}
         <div className="flex items-center gap-2">
-          <Image
-            src="https://randomuser.me/api/portraits/men/32.jpg"
-            alt="User"
-            className="rounded-full"
-            width={32}
-            height={32}
-          />
-          <span className="text-sm font-medium text-yellow-200">Alex Johnson</span>
+         
+<Image
+  src="https://randomuser.me/api/portraits/men/32.jpg"
+  alt="User"
+  className="rounded-full"
+  width={32}
+  height={32}
+  unoptimized
+/>
+         
         </div>
       </div>
     </nav>
